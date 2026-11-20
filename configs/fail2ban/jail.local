@@ -1,0 +1,12 @@
+# Location on the server: /etc/fail2ban/jail.local
+[DEFAULT]
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+banaction = ufw
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true
+port    = 22
+backend = systemd

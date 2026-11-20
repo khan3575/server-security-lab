@@ -102,3 +102,30 @@ ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes sakib@LAB_IP   # works
 ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes root@LAB_IP    # Permission denied
 ```
 Result: root login and password login disabled, only `sakib` with a key can log in.
+
+### 2.3 UFW firewall (lab server, as sakib)
+```
+sudo apt install -y ufw          # already installed (0.36.2-6)
+grep IPV6 /etc/default/ufw       # IPV6=yes
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw show added              # 22/tcp listed before enabling
+sudo ufw enable
+sudo ufw status verbose
+```
+Result: `Status: active`, default deny incoming / allow outgoing / disabled routed. 22, 80 and 443/tcp allowed on IPv4 and IPv6. Re-running the allow commands just printed "Skipping adding existing rule".
+
+### 2.4 fail2ban (lab server, as sakib)
+```
+sudo apt install -y fail2ban
+sudo tee /etc/fail2ban/jail.local > /dev/null <<'EOF'
+... (see configs/fail2ban/jail.local)
+EOF
+sudo systemctl enable --now fail2ban
+sudo systemctl status fail2ban --no-pager | head -5
+sudo fail2ban-client status sshd
+```
+Result: `active (running)`. 37 seconds after start the sshd jail showed Total failed 7, Currently banned 1, Total banned 1: a real internet bot, banned through UFW. Home IP not whitelisted (CGNAT address changes), so no deliberate failed logins from the local machine.
