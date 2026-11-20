@@ -66,3 +66,39 @@ Then replaced the server's IPv4, IPv6 and reverse-DNS name with `LAB_IP`, `LAB_I
 grep -rE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' .
 ```
 Problem: lynis file first saved as `lynix.txt`, and `ports.txt` not copied. See `troubleshooting.md` #2.
+
+## Step 2: harden the server
+
+### 2.1 Create a sudo user (lab server, as root)
+```
+adduser sakib
+usermod -aG sudo sakib
+mkdir -p /home/sakib/.ssh
+cp /root/.ssh/authorized_keys /home/sakib/.ssh/authorized_keys
+chown -R sakib:sakib /home/sakib/.ssh
+chmod 700 /home/sakib/.ssh
+chmod 600 /home/sakib/.ssh/authorized_keys
+```
+Tested in a second terminal with the root session still open:
+```
+ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes sakib@LAB_IP
+sudo whoami    # prints: root
+```
+Result: key login as `sakib` works, and sudo works. The password is new and random, used only here.
+
+### 2.2 Lock down SSH (lab server, as sakib; root session kept open)
+Wrote `/etc/ssh/sshd_config.d/00-hardening.conf` (copy in `configs/ssh/00-hardening.conf`):
+```
+sudo tee /etc/ssh/sshd_config.d/00-hardening.conf > /dev/null <<'EOF'
+... (see configs/ssh/00-hardening.conf)
+EOF
+sudo sshd -t
+sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication|kbdinteractiveauthentication|allowusers|maxauthtries) '
+sudo systemctl restart ssh
+```
+Tested in a new terminal before closing the root session:
+```
+ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes sakib@LAB_IP   # works
+ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes root@LAB_IP    # Permission denied
+```
+Result: root login and password login disabled, only `sakib` with a key can log in.
