@@ -1,0 +1,9 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: lab-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Server Security Lab</title>
+  <meta name="description" content="A test page for a hardened Ubuntu server behind Cloudflare.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Server Security Lab</h1>
+    <p class="lead">This page runs on a hardened Ubuntu 24.04 server behind Cloudflare.</p>
+
+    <h2>How the request travels</h2>
+    <ol>
+      <li>Browser opens <strong>lab.sakib-khan.com</strong></li>
+      <li>Cloudflare: DNS, proxy, SSL Full (strict), WAF, rate limit</li>
+      <li>UFW firewall: only the needed ports are open</li>
+      <li>Ubuntu 24.04: SSH keys only, fail2ban, automatic updates</li>
+      <li>Nginx: HTTPS and security headers</li>
+      <li>Docker container serving this page</li>
+    </ol>
+
+    <p class="note">This is a temporary test site. It has no login, forms or database.</p>
+  </main>
+  <footer>
+    <p>Built by Sakib Khan as a portfolio project.</p>
+  </footer>
+</body>
+</html>
