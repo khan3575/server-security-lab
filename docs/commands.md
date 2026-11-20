@@ -11,3 +11,7 @@
 ```
 
 
+### So you used the right key, but by luck. On a server that allowed only a few failed attempts, SSH trying several keys could also lock you out. That's why the clean command is better:
+```
+    ssh -i ~/.ssh/lab_key -o IdentitiesOnly=yes root@LAB_IP
+```
